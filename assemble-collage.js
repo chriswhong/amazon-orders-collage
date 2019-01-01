@@ -5,7 +5,7 @@ const Canvas = require('canvas');
 const mergeImages = require('merge-images');
 const { orderBy } = require('natural-orderby');
 
-const outputPath = './output/assembled.jpg';
+const outputPath = './output/amazon-collage.jpg';
 
 const filenames = fs.readdirSync('tmp');
 const sortedFilenames = orderBy(filenames, [v => v], ['asc']);
@@ -85,6 +85,6 @@ const rawImageData = {
 
 const jpegImageData = jpeg.encode(rawImageData, 100);
 
-fs.outputFile('./output/assembled.jpg', jpegImageData.data, () => {
+fs.outputFile(outputPath, jpegImageData.data, () => {
   processFiles(sortedFilenames);
 });
