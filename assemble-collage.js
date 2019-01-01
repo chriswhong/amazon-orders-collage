@@ -41,27 +41,28 @@ async function processFiles(files) {
 
     // further modify x and y if image is not 300 x 300
     const jpegData = fs.readFileSync(`./tmp/${filenames[i]}`);
-    const resized = await sharp(jpegData)
+    // do each one synchronously
+    await sharp(jpegData)
       .resize(imageDimension, imageDimension, {
         fit: 'contain',
         background: '#FFFFFF',
       })
-      .toBuffer();
-
-
-    await mergeImages([
-      { src: outputPath, x: 0, y: 0 },
-      { src: resized, x, y },
-    ], {
-      Canvas,
-      format: 'image/jpeg',
-    })
-      .then((b64) => {
-        const base64Data = b64.trim().replace(/^data:image\/jpeg;base64,/, '');
-        fs.writeFileSync(outputPath, Buffer.from(base64Data, 'base64'));
+      .toBuffer()
+      .then(resized => {
+        return mergeImages([
+          { src: outputPath, x: 0, y: 0 },
+          { src: resized, x, y },
+        ], {
+            Canvas,
+            format: 'image/jpeg',
+          })
+          .then((b64) => {
+            const base64Data = b64.trim().replace(/^data:image\/jpeg;base64,/, '');
+            fs.writeFileSync(outputPath, Buffer.from(base64Data, 'base64'));
+          })
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(err => {
+        console.error(err);
       });
   }
 
