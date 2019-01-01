@@ -39,7 +39,7 @@ async function processFiles(files) {
     y += cellPadding + outputPadding;
 
     // further modify x and y if image is not 300 x 300
-    const jpegData = fs.readFileSync(`./tmp/${filenames[i]}`);
+    const jpegData = fs.readFileSync(`./tmp/${files[i]}`);
     // do each one synchronously
     await sharp(jpegData)
       .resize(imageDimension, imageDimension, {
@@ -85,5 +85,6 @@ const rawImageData = {
 const jpegImageData = jpeg.encode(rawImageData, 100);
 
 fs.outputFile(outputPath, jpegImageData.data, () => {
+  console.log(sortedFilenames)
   processFiles(sortedFilenames);
 });
