@@ -38,25 +38,16 @@ let count = 0; // use count integer for image filenames
 const csvPath = process.argv[2];
 
 // parse the csv of orders
-const csvstream = csv
+csv
   .fromPath(csvPath, { headers: true })
   .on("data", row => {
-    // pause the csv stream until we've finished scraping this row
-    csvstream.pause();
-
     // get the produt's ASIN (unique ID)
     const ASIN = row["ASIN/ISBN"];
-    fetchPhoto(ASIN, `tmp/${count}.jpg`)
-      .then(() => {
-        count += 1; // increment count
-      })
-      .catch(err => {
-        // if there's an error scraping an image for this row, ignore it
-        console.error("Oops, couldn't get an image...", err);
-      })
-      .then(() => {
-        csvstream.resume(); // resume reading from the csv
-      });
+    fetchPhoto(ASIN, `tmp/${count}.jpg`).catch(err => {
+      // if there's an error scraping an image for this row, ignore it
+      console.error("Oops, couldn't get an image...", err);
+    });
+    count += 1; // increment count
   })
   .on("end", () => {
     console.log("Done!");
