@@ -59,6 +59,17 @@ const getHTML = (imageFiles) => {
           width: ${imageDimension}px;
         }
       </style>
+      <script>
+        // hide broken images
+        // https://stackoverflow.com/a/22051972/358804
+        document.addEventListener("DOMContentLoaded", function(event) {
+          document.querySelectorAll('img').forEach(function(img){
+            img.onerror = function() {
+              this.style.display='none';
+            };
+          })
+        });
+      </script>
     </head>
     <body>
       ${images.join('\n')}
