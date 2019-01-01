@@ -34,7 +34,6 @@ async function processFiles(files) {
     let x = ((i % gridWidth) * cellDimension);
     let y = (Math.floor(i / gridWidth) * cellDimension);
 
-
     // add left and top padding to the cell
     x += cellPadding + outputPadding;
     y += cellPadding + outputPadding;
@@ -48,20 +47,18 @@ async function processFiles(files) {
         background: '#FFFFFF',
       })
       .toBuffer()
-      .then(resized => {
-        return mergeImages([
-          { src: outputPath, x: 0, y: 0 },
-          { src: resized, x, y },
-        ], {
-            Canvas,
-            format: 'image/jpeg',
-          })
-          .then((b64) => {
-            const base64Data = b64.trim().replace(/^data:image\/jpeg;base64,/, '');
-            fs.writeFileSync(outputPath, Buffer.from(base64Data, 'base64'));
-          })
+      .then(resized => mergeImages([
+        { src: outputPath, x: 0, y: 0 },
+        { src: resized, x, y },
+      ], {
+        Canvas,
+        format: 'image/jpeg',
       })
-      .catch(err => {
+        .then((b64) => {
+          const base64Data = b64.trim().replace(/^data:image\/jpeg;base64,/, '');
+          fs.writeFileSync(outputPath, Buffer.from(base64Data, 'base64'));
+        }))
+      .catch((err) => {
         console.error(err);
       });
   }
@@ -69,6 +66,7 @@ async function processFiles(files) {
   console.log(`Done! Output saved to ${outputPath}`);
 }
 
+// make an empty white jpeg with the correct dimensions
 const frameData = Buffer.alloc(outputWidth * outputHeight * 4);
 
 let i = 0;
