@@ -26,6 +26,13 @@ const getPhotoUrl = ASIN => {
   });
 };
 
+const fetchPhoto = (ASIN, destFile) => {
+  return getPhotoUrl(ASIN).then(base64Data => {
+    // write the image to file
+    return fs.outputFile(destFile, Buffer.from(base64Data, "base64"));
+  });
+};
+
 let count = 0; // use count integer for image filenames
 
 const csvPath = process.argv[2];
@@ -39,16 +46,9 @@ const csvstream = csv
 
     // get the produt's ASIN (unique ID)
     const ASIN = row["ASIN/ISBN"];
-    getPhotoUrl(ASIN)
-      .then(base64Data => {
-        // write the image to file
-        fs.outputFile(
-          `tmp/${count}.jpg`,
-          Buffer.from(base64Data, "base64"),
-          () => {
-            count += 1; // increment count
-          }
-        );
+    fetchPhoto(ASIN, `tmp/${count}.jpg`)
+      .then(() => {
+        count += 1; // increment count
       })
       .catch(err => {
         // if there's an error scraping an image for this row, ignore it
