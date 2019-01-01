@@ -1,9 +1,9 @@
-const csv = require("fast-csv");
-const rp = require("request-promise");
-const cheerio = require("cheerio");
-const fs = require("fs-extra");
+const csv = require('fast-csv');
+const rp = require('request-promise');
+const cheerio = require('cheerio');
+const fs = require('fs-extra');
 
-const getPhotoUrl = ASIN => {
+const getPhotoUrl = (ASIN) => {
   const URL = `https://www.amazon.com/x/dp/${ASIN}`;
   console.log(`Grabbing product image from ${URL}`);
 
@@ -13,25 +13,21 @@ const getPhotoUrl = ASIN => {
     gzip: true,
     transform(body) {
       return cheerio.load(body);
-    }
-  }).then($ => {
+    },
+  }).then(($) => {
     // get the first img element descendend from main-image-container
-    const image = $("#main-image-container img, #mainImageContainer img")
+    const image = $('#main-image-container img, #mainImageContainer img')
       .first()
-      .attr("src")
+      .attr('src')
       .trim();
 
     // strip out the metadata at the beginning of the img source
-    return image.replace(/^data:image\/jpeg;base64,/, "");
+    return image.replace(/^data:image\/jpeg;base64,/, '');
   });
 };
 
-const fetchPhoto = (ASIN, destFile) => {
-  return getPhotoUrl(ASIN).then(base64Data => {
-    // write the image to file
-    return fs.outputFile(destFile, Buffer.from(base64Data, "base64"));
-  });
-};
+const fetchPhoto = (ASIN, destFile) => (getPhotoUrl(ASIN)
+  .then(base64Data => fs.outputFile(destFile, Buffer.from(base64Data, 'base64'))));
 
 let count = 0; // use count integer for image filenames
 
@@ -40,18 +36,18 @@ const csvPath = process.argv[2];
 // parse the csv of orders
 csv
   .fromPath(csvPath, { headers: true })
-  .on("data", row => {
+  .on('data', (row) => {
     // get the produt's ASIN (unique ID)
-    const ASIN = row["ASIN/ISBN"];
-    fetchPhoto(ASIN, `tmp/${count}.jpg`).catch(err => {
+    const ASIN = row['ASIN/ISBN'];
+    fetchPhoto(ASIN, `tmp/${count}.jpg`).catch((err) => {
       // if there's an error scraping an image for this row, ignore it
       console.error("Oops, couldn't get an image...", err);
     });
     count += 1; // increment count
   })
-  .on("end", () => {
-    console.log("Done!");
+  .on('end', () => {
+    console.log('Done!');
   })
-  .on("error", error => {
+  .on('error', (error) => {
     console.error(error);
   });
