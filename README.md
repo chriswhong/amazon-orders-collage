@@ -4,6 +4,9 @@ Creates a collage (grid) of product images for each product in an amazon.com ord
 
 ![example output](example.jpg)
 
+## Why?
+I thought it would be interesting to make a "consumer yearbook" of sorts showing a year's worth of Amazon activity.  It's nostalgic and #mildlyinteresting.
+
 ## How to use
 
 - Clone this repo
