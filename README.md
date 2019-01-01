@@ -36,5 +36,5 @@ You can customize the following layout properties in `assemble-collage.js`:
 
 ## Contributors
 
-[Chris Whong](https://github.com/chriswhong)
-[Aidan Feldman](https://github.com/afeld)
+- [Chris Whong](https://github.com/chriswhong)
+- [Aidan Feldman](https://github.com/afeld)
