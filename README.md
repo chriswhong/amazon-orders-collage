@@ -2,6 +2,8 @@
 
 Creates a collage (grid) of product images for each product in an amazon.com order history report.  
 
+![example output](example.jpg)
+
 ## How to use
 
 - Clone this repo
