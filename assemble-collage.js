@@ -19,7 +19,7 @@ const outputPadding = 200;
 const takeScreenshot = async (htmlPath) => {
   const browser = await puppeteer.launch({
     defaultViewport: {
-      height: imageDimension, // doesn't matter - full scrollable area will be captured
+      height: imageDimension + (2 * outputPadding), // this is really just the minimum height
       width: imageDimension * gridWidth,
     },
   });
@@ -36,10 +36,10 @@ const takeScreenshot = async (htmlPath) => {
   return browser.close();
 };
 
-async function processFiles(files) {
-  const images = files.map(url => `<img src="file://${__dirname}/tmp/${url}" />`);
+const getHTML = (imageFiles) => {
+  const images = imageFiles.map(url => `<img src="file://${__dirname}/tmp/${url}" />`);
 
-  const html = `
+  return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -64,7 +64,10 @@ async function processFiles(files) {
       ${images.join('\n')}
     </body>
     </html>`;
+};
 
+async function processFiles(files) {
+  const html = getHTML(files);
   const htmlPath = './output/index.html';
   await fs.writeFile(htmlPath, html);
   await takeScreenshot(htmlPath);
