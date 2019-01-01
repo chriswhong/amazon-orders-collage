@@ -3,7 +3,7 @@ const rp = require('request-promise');
 const cheerio = require('cheerio');
 const fs = require('fs-extra');
 
-const getPhotoUrl = (ASIN) => {
+const scrapePhoto = (ASIN) => {
   const URL = `https://www.amazon.com/x/dp/${ASIN}`;
   console.log(`Grabbing product image from ${URL}`);
 
@@ -26,8 +26,10 @@ const getPhotoUrl = (ASIN) => {
   });
 };
 
-const fetchPhoto = (ASIN, destFile) => (getPhotoUrl(ASIN)
-  .then(base64Data => fs.outputFile(destFile, Buffer.from(base64Data, 'base64'))));
+const processAsin = (ASIN, destFile) => {
+  scrapePhoto(ASIN)
+    .then(base64Data => fs.outputFile(destFile, Buffer.from(base64Data, 'base64')));
+};
 
 let count = 0; // use count integer for image filenames
 
@@ -37,9 +39,9 @@ const csvPath = process.argv[2];
 csv
   .fromPath(csvPath, { headers: true })
   .on('data', (row) => {
-    // get the produt's ASIN (unique ID)
+    // get the product's ASIN (unique ID)
     const ASIN = row['ASIN/ISBN'];
-    fetchPhoto(ASIN, `tmp/${count}.jpg`).catch((err) => {
+    processAsin(ASIN, `tmp/${count}.jpg`).catch((err) => {
       // if there's an error scraping an image for this row, ignore it
       console.error("Oops, couldn't get an image...", err);
     });
