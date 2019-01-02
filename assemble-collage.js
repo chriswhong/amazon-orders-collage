@@ -8,19 +8,27 @@ const filenames = fs.readdirSync('tmp');
 const sortedFilenames = orderBy(filenames, [v => v], ['asc']);
 
 const gridWidth = 16; // images per row
+const gridHeight = Math.ceil(filenames.length / gridWidth); // number of rows
 
 // dimensions and padding for each image
 const cellPadding = 20;
 const imageDimension = 300; // images will be scaled to this number of pixels square
 
+const cellDimension = imageDimension + (cellPadding * 2);
+
 // padding around the edges of the collage
 const outputPadding = 200;
 
 const takeScreenshot = async (htmlPath) => {
+  // this is really just the minimum height
+  const height = (cellDimension * gridHeight) + (outputPadding * 2);
+  const width = (cellDimension * gridWidth) + (outputPadding * 2);
+  console.log(`Creating ${width} x ${height} layout...`);
+
   const browser = await puppeteer.launch({
     defaultViewport: {
-      height: imageDimension + (2 * outputPadding), // this is really just the minimum height
-      width: imageDimension * gridWidth,
+      height,
+      width,
     },
   });
   const page = await browser.newPage();
@@ -53,10 +61,12 @@ const getHTML = (imageFiles) => {
           padding: ${outputPadding}px;
         }
         img {
-          height: ${imageDimension}px;
-          margin: ${cellPadding}px;
+          height: ${cellDimension}px;
+          padding: ${cellPadding}px;
           object-fit: contain;
-          width: ${imageDimension}px;
+          width: ${cellDimension}px;
+          box-sizing: border-box;
+          float: left;
         }
       </style>
       <script>
