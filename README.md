@@ -35,7 +35,7 @@ You can customize the following layout properties in `assemble-collage.js`:
 
 `get-photos.js` parses the csv, pulling the `ASIN/ISBN` value for each product.  It then GETs the product's page from amazon.com, parses the html with cheerio, grabs the first product image and saves it in `/tmp`
 
-`assemble-collage.js` checks the number of images in `/tmp` and creates an empty white jpeg with dimensions that will fit all of the product images.  It then merges each product image with the collage, calculating the correct x/y position for each image.
+`assemble-collage.js` puts the images together into an web page with a strict grid layout, loads it in a headless browser, and saves an image.
 
 ## Contributors
 
