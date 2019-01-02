@@ -1,8 +1,5 @@
 const fs = require('fs-extra');
-const sharp = require('sharp');
-const jpeg = require('jpeg-js');
-const Canvas = require('canvas');
-const mergeImages = require('merge-images');
+const puppeteer = require('puppeteer');
 const { orderBy } = require('natural-orderby');
 
 const outputPath = './output/amazon-collage.jpg';
@@ -16,75 +13,87 @@ const gridHeight = Math.ceil(filenames.length / gridWidth); // number of rows
 // dimensions and padding for each image
 const cellPadding = 20;
 const imageDimension = 300; // images will be scaled to this number of pixels square
-const cellDimension = imageDimension + cellPadding + cellPadding;
+
+const cellDimension = imageDimension + (cellPadding * 2);
 
 // padding around the edges of the collage
 const outputPadding = 200;
 
-// final collage dimensions
-const outputWidth = (cellDimension * gridWidth) + outputPadding + outputPadding;
-const outputHeight = (cellDimension * gridHeight) + outputPadding + outputPadding;
+const takeScreenshot = async (htmlPath) => {
+  // this is really just the minimum height
+  const height = (cellDimension * gridHeight) + (outputPadding * 2);
+  const width = (cellDimension * gridWidth) + (outputPadding * 2);
+  console.log(`Creating ${width} x ${height} layout...`);
+
+  const browser = await puppeteer.launch({
+    defaultViewport: {
+      height,
+      width,
+    },
+  });
+  const page = await browser.newPage();
+
+  page.on('error', console.error);
+
+  await page.goto(`file://${__dirname}/${htmlPath}`);
+  await page.screenshot({
+    fullPage: true,
+    omitBackground: true,
+    path: outputPath,
+  });
+  return browser.close();
+};
+
+const getHTML = (imageFiles) => {
+  const images = imageFiles.map(url => `<img src="file://${__dirname}/tmp/${url}" />`);
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8" />
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+        }
+        body {
+          padding: ${outputPadding}px;
+        }
+        img {
+          height: ${cellDimension}px;
+          padding: ${cellPadding}px;
+          object-fit: contain;
+          width: ${cellDimension}px;
+          box-sizing: border-box;
+          float: left;
+        }
+      </style>
+      <script>
+        // hide broken images
+        // https://stackoverflow.com/a/22051972/358804
+        document.addEventListener("DOMContentLoaded", function(event) {
+          document.querySelectorAll('img').forEach(function(img){
+            img.onerror = function() {
+              this.style.display='none';
+            };
+          })
+        });
+      </script>
+    </head>
+    <body>
+      ${images.join('\n')}
+    </body>
+    </html>`;
+};
 
 async function processFiles(files) {
-  // iterate over source images
-  for (let i = 0; i < files.length; i += 1) {
-    console.log(`Processing ${files[i]}`);
-
-    // set x and y to the top left of the cell
-    let x = ((i % gridWidth) * cellDimension);
-    let y = (Math.floor(i / gridWidth) * cellDimension);
-
-    // add left and top padding to the cell
-    x += cellPadding + outputPadding;
-    y += cellPadding + outputPadding;
-
-    // further modify x and y if image is not 300 x 300
-    const jpegData = fs.readFileSync(`./tmp/${files[i]}`);
-    // do each one synchronously
-    await sharp(jpegData)
-      .resize(imageDimension, imageDimension, {
-        fit: 'contain',
-        background: '#FFFFFF',
-      })
-      .toBuffer()
-      .then(resized => mergeImages([
-        { src: outputPath, x: 0, y: 0 },
-        { src: resized, x, y },
-      ], {
-        Canvas,
-        format: 'image/jpeg',
-      })
-        .then((b64) => {
-          const base64Data = b64.trim().replace(/^data:image\/jpeg;base64,/, '');
-          fs.writeFileSync(outputPath, Buffer.from(base64Data, 'base64'));
-        }))
-      .catch((err) => {
-        console.error(err);
-      });
-  }
+  const html = getHTML(files);
+  const htmlPath = './output/index.html';
+  await fs.writeFile(htmlPath, html);
+  await takeScreenshot(htmlPath);
 
   console.log(`Done! Output saved to ${outputPath}`);
 }
 
-// make an empty white jpeg with the correct dimensions
-const frameData = Buffer.alloc(outputWidth * outputHeight * 4);
-
-let i = 0;
-while (i < frameData.length) {
-  frameData[i += 1] = 0xFF; // red
-  frameData[i += 1] = 0xFF; // green
-  frameData[i += 1] = 0xFF; // blue
-}
-
-const rawImageData = {
-  data: frameData,
-  width: outputWidth,
-  height: outputHeight,
-};
-
-const jpegImageData = jpeg.encode(rawImageData, 100);
-
-fs.outputFile(outputPath, jpegImageData.data, () => {
-  console.log(sortedFilenames)
-  processFiles(sortedFilenames);
-});
+processFiles(sortedFilenames);
