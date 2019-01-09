@@ -26,10 +26,8 @@ const scrapePhoto = (ASIN) => {
   });
 };
 
-const processAsin = (ASIN, destFile) => {
-  scrapePhoto(ASIN)
-    .then(base64Data => fs.outputFile(destFile, Buffer.from(base64Data, 'base64')));
-};
+const processAsin = (ASIN, destFile) => scrapePhoto(ASIN)
+  .then(base64Data => fs.outputFile(destFile, Buffer.from(base64Data, 'base64')));
 
 let count = 0; // use count integer for image filenames
 
