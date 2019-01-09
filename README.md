@@ -11,16 +11,17 @@ I thought it would be interesting to make a "consumer yearbook" of sorts showing
 
 - Clone this repo
 - Install Dependencies `npm install`
-- Get an [order history report](https://www.amazon.com/gp/b2b/reports) from your Amazon account
-- Create a directory `/data` and save your order history report csv in it
+- Generate an [order history report](https://www.amazon.com/gp/b2b/reports) from your Amazon account
+- Save your order history report CSV to your computer
 
 - Download product images
-  - `node get-photos.js {path-to-your-csv}` (`node get-photos.js data/order-history.csv`)
-  - images will be saved in `/tmp`
+  - `node get-photos.js /path/to/your/order-history-report.csv`
+  - product images will be saved in `product_images/`
 
 - Assemble your collage!
   - `node assemble-collage`
-  - Your collage will be saved in `/output/amazon-collage.jpg`
+  - Your collage will be saved in `output/amazon-collage.jpg`
+  - An HTML grid version of your collage will be saved in `output/index.html`
 
 ## Customizing Dimensions
 
@@ -33,7 +34,7 @@ You can customize the following layout properties in `assemble-collage.js`:
 
 ## How it works
 
-`get-photos.js` parses the csv, pulling the `ASIN/ISBN` value for each product.  It then GETs the product's page from amazon.com, parses the html with cheerio, grabs the first product image and saves it in `/tmp`
+`get-photos.js` parses the csv, pulling the `ASIN/ISBN` value for each product.  It then GETs the product's page from amazon.com, parses the html with cheerio, grabs the first product image and saves it in `product_images/`
 
 `assemble-collage.js` puts the images together into an web page with a strict grid layout, loads it in a headless browser, and saves an image.
 

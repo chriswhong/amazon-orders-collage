@@ -4,7 +4,7 @@ const { orderBy } = require('natural-orderby');
 
 const outputPath = './output/amazon-collage.jpg';
 
-const filenames = fs.readdirSync('tmp');
+const filenames = fs.readdirSync('product_images');
 const sortedFilenames = orderBy(filenames, [v => v], ['asc']);
 
 const gridWidth = 16; // images per row
@@ -45,7 +45,7 @@ const takeScreenshot = async (htmlPath) => {
 };
 
 const getHTML = (imageFiles) => {
-  const images = imageFiles.map(url => `<img src="file://${__dirname}/tmp/${url}" />`);
+  const images = imageFiles.map(url => `<img src="file://${__dirname}/product_images/${url}" />`);
 
   return `
     <!DOCTYPE html>
@@ -93,7 +93,7 @@ async function processFiles(files) {
   await fs.writeFile(htmlPath, html);
   await takeScreenshot(htmlPath);
 
-  console.log(`Done! Output saved to ${outputPath}`);
+  console.log(`Done!\nImage saved to ${outputPath}\nHTML saved to ${htmlPath}`);
 }
 
 processFiles(sortedFilenames);
