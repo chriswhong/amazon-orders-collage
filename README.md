@@ -42,4 +42,4 @@ You can customize the following layout properties in `assemble-collage.js`:
 
 - [Chris Whong](https://github.com/chriswhong)
 - [Aidan Feldman](https://github.com/afeld)
-- [Sam Louisaida](https://github.com/loisaidasam)
+- [Loisaida Sam Sandberg](https://github.com/loisaidasam)
