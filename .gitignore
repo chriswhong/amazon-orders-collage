@@ -1,6 +1,2 @@
-/tmp
-/output
-/data
 /node_modules
 .DS_Store
-orders.csv

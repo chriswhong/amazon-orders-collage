@@ -39,7 +39,7 @@ csv
   .on('data', (row) => {
     // get the product's ASIN (unique ID)
     const ASIN = row['ASIN/ISBN'];
-    processAsin(ASIN, `tmp/${count}.jpg`).catch((err) => {
+    processAsin(ASIN, `product_images/${count}.jpg`).catch((err) => {
       // if there's an error scraping an image for this row, ignore it
       console.error("Oops, couldn't get an image...", err);
     });
